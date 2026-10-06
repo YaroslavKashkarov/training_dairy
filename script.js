@@ -23,6 +23,9 @@ const inputDuration = document.querySelector(".form__input--duration")
 const inputCadence = document.querySelector(".form__input--cadence")
 const inputElevation = document.querySelector(".form__input--elevation")
 
+let map
+let mapEvent
+
 if(navigator.geolocation) {}
 
 navigator.geolocation.getCurrentPosition(
@@ -31,20 +34,42 @@ navigator.geolocation.getCurrentPosition(
     const {longitude} = position.coords
     const coords = [latitude, longitude]
 
-    const map = L.map('map').setView(coords, 13)
+    map = L.map('map').setView(coords, 13)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map)
 
 
-    map.on('click', (mapEvent) => {
+    map.on('click', (mapE) => {
+      mapEvent = mapE
+      form?.classList.remove('hidden')
+      inputDistance.focus()
+    }),
+      function () {
+        alert(`You have not granted access to your location`)
+      }
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault()
+      inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = ''
+      console.log(mapEvent)
       const {lat, lng} = mapEvent.latlng
       L.marker([lat, lng]).addTo(map)
-        .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup
+        (L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'mark-popup'
+        })).setPopupContent('Training')
         .openPopup()
-      console.log(mapEvent)
     })
-  },
-  function () {
-    alert(`You have not granted access to your location`)
   })
+
+inputType?.addEventListener('change', () => {
+  inputCadence?.closest('.form__row').classList.toggle('form__row--hidden')
+  inputElevation?.closest('.form__row').classList.toggle('form__row--hidden')
+})
