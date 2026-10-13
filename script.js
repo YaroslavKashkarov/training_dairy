@@ -72,6 +72,7 @@ class App {
 
     form?.addEventListener('submit', this._newWorkout.bind(this))
     inputType?.addEventListener('change', this._toggleField)
+    containerWorkouts?.addEventListener('click', this._moveToPopup.bind(this))
   }
 
   // TODO Show currently position
@@ -87,9 +88,7 @@ class App {
     const {latitude} = position.coords
     const {longitude} = position.coords
     const coords = [latitude, longitude]
-    console.log(this)
     this._map = L.map('map').setView(coords, 13)
-    console.log(this._map)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -147,7 +146,6 @@ class App {
     }
 
     this._workouts.push(workout)
-    console.log(this._workouts)
 
     //  * If it’s a run, create a run object
     //  * If it’s a bicycle, create a ‘bicycle’ object
@@ -230,8 +228,19 @@ class App {
     }
     form?.insertAdjacentHTML('afterend', html)
   }
+  _moveToPopup(e) {
+    const workEL = e.target.closest('.workout')
+    console.log(workEL)
+    if(!workEL)
+      return
+
+    const workout = this._workouts.find((work) => work.id === workEL.dataset.id)
+    console.log(workout)
+    this._map.setView(workout.coords, 13, {animate: true, pan: {duration: 1}})
+  }
 }
 
-// *Running App
+
+// * Running App
 const app = new App()
 app._getPosition
