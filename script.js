@@ -68,8 +68,11 @@ class App {
   _map
   __mapEvent
   constructor () {
+    // * Running the application logic
     this._getPosition()
-
+    // * Retrieving data from the storage system
+    this._getLocalStorage()
+    // * An event handler that calls a method _newWorkout
     form?.addEventListener('submit', this._newWorkout.bind(this))
     inputType?.addEventListener('change', this._toggleField)
     containerWorkouts?.addEventListener('click', this._moveToPopup.bind(this))
@@ -95,6 +98,7 @@ class App {
     }).addTo(this._map)
 
     this._map.on('click', this._showForm.bind(this))
+    this._workouts.forEach((work) => this._renderWorkMarker(work))
   }
 
   // TODO Show currently form
@@ -154,6 +158,7 @@ class App {
     this._renderWorkMarker(workout)
     this._renderWorkout(workout)
     this._hideForm()
+    this._setLocalStorage()
   }
   _renderWorkMarker(workout) {
     L.marker(workout.coords)
@@ -230,7 +235,6 @@ class App {
   }
   _moveToPopup(e) {
     const workEL = e.target.closest('.workout')
-    console.log(workEL)
     if(!workEL)
       return
 
@@ -238,9 +242,20 @@ class App {
     console.log(workout)
     this._map.setView(workout.coords, 13, {animate: true, pan: {duration: 1}})
   }
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this._workouts))
+  }
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts') || null)
+    console.log(data)
+    if(!data) return
+    this._workouts = data
+  }
+  reset() {
+    localStorage.removeItem('workouts')
+    location.reload()
+  }
 }
-
 
 // * Running App
 const app = new App()
-app._getPosition
